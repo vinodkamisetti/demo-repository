@@ -1,0 +1,31 @@
+#!/bin/bash
+var=./debug-print-content.yaml
+echo "i-0f224e5496138918f" > inventory.ini
+
+cat << EOF > $var
+- name: Run a command  to print logs
+  hosts: all
+  become: true
+  vars:
+    ansible_connection: community.aws.aws_ssm
+    ansible_aws_ssm_bucket_name: 103933991595-ansiblebucket
+    ansible_aws_ssm_region: eu-central-1
+  tasks:
+    #- name: Printing DD config file
+    #  ansible.builtin.shell: mv /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent1.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+      #ansible.builtin.shell: cat /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent1.json
+    - name: Checking service status
+      ansible.builtin.shell: sed -i '\$d' /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    #- name: Print logs for Datadog
+    #  ansible.builtin.shell: wc -l /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent1.json
+    - name: Print logs for Datadog
+      ansible.builtin.shell: cat /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    #- name: Downloading APIGEE Router node log format
+    #  amazon.aws.aws_s3:
+    #    bucket: 103933991595-ansiblebucket
+    #    object: apigee/cloudwatch_log.json
+    #    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    #    mode: get
+EOF
+
+ansible-playbook -vvv -i inventory.ini ./debug-print-content.yaml
